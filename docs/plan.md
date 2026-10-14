@@ -1,6 +1,6 @@
 # Upgrade plan: oscd-menu-subscriber-lb-sel
 
-Status: **Agreed, implementation starting** · Branch: `upgrade` · Last updated: 2026-10-14
+Status: **SEL upgrade complete**; Siemens and NR next (§8) · Branch: `upgrade` · Last updated: 2026-10-14
 
 This plan upgrades the SEL companion plugin for the Subscriber Later Binding
 plugin to the current OpenSCD stack:
@@ -29,14 +29,14 @@ Update this table as each step completes, and add a completion summary to
 | # | Step | Shared? | Status |
 |---|------|---------|--------|
 | 1 | Plan and review (this document) | — | ✅ |
-| 2 | Scaffold onto oscd-tooling (`src/`, ESM, configs, CI) | [shared] | ⬜ |
-| 3 | Companion core: event interpretation and squashed dispatch | [shared] | ⬜ |
-| 4 | SEL rules ported to pure `foundation/` functions plus EditV2 | SEL | ⬜ |
-| 5 | Logic gap fixes (§5) | SEL (+ shared items) | ⬜ |
-| 6 | UI: oscd-ui dialog, theming, localisation | [shared] | ⬜ |
-| 7 | Tests: unit, integration with the real later-binding plugin, and visual | mostly [shared] harness | ⬜ |
-| 8 | Demo page (oscd-shell) and README | [shared] | ⬜ |
-| 9 | Clean-up: remove legacy files, final verify, CHANGELOG/release-please | [shared] | ⬜ |
+| 2 | Scaffold onto oscd-tooling (`src/`, ESM, configs, CI) | [shared] | ✅ |
+| 3 | Companion core: protocol listener, gating, skip-never-overwrite, `apply` | [shared] | ✅ |
+| 4 | SEL rules ported to pure `foundation/` functions plus EditV2 | SEL | ✅ |
+| 5 | Logic gap fixes (§5) | SEL (+ shared items) | ✅ |
+| 6 | UI: oscd-ui dialog, theming, localisation | [shared] | ✅ |
+| 7 | Tests: unit, integration with a protocol stand-in, and visual | mostly [shared] harness | ✅ (baselines: CI) |
+| 8 | Demo page (oscd-shell) and README | [shared] | ✅ |
+| 9 | Clean-up: remove legacy files, final verify, CHANGELOG/release-please | [shared] | ✅ |
 | LB | Later-binding changes: companion protocol + `apply`, auto-increment stops at a subscribed input, companion badge (§2.2, §2.4, Step LB) | other repo | ✅ |
 
 ---
@@ -471,6 +471,50 @@ each step completes: what changed, verification commands and results, deviations
   - Docs: the development page has a "Companion plugins" section, and the introduction lists the companions.
   - Verified with `npm run lint` (0 errors) and `npm test` (791 passed, 98.99% coverage).
   - Follow-up: the settings-menu visual baselines change, so the PR needs the `update-visual-baselines` label.
+
+- **Steps 2–9** (2026-10-14), branch `upgrade`.
+  - **Deviation: steps 2–7 were done in one pass.** The pre-commit hook lints staged `.ts`, and the legacy source could not pass it. They are committed as a scaffold commit and a rewrite commit.
+  - **Scaffold.**
+    - Configs come from later binding and the OMICRON template: `tsconfig`, `eslint.config.js`, a local `web-test-runner.config.js` with coverage thresholds 95/90/95/95, workflows, release-please, `.gitattributes` for LFS screenshots, and `.githooks` from `oscd install-hooks`.
+    - `@omicronenergy/oscd-tooling` is pinned at 0.0.8. `oscd clean` still exits the process early, so `clean` is a local script and `build`, `bundle` and `pretest` call `oscd … --no-clean`.
+  - **Translations.** These follow the OMICRON pattern (user decision): `lit-localize.json` in runtime mode, `src/localization/{de,pt}.xlf`, generated `src/locales/` gitignored, and `extract` + `localize` before start, build and test. All strings are translated.
+  - **Core.** `src/companion/` holds:
+    - `protocol.ts`, a verbatim copy of later binding's with a header;
+    - `companion.ts`, with `respondToChange` and `CompanionController`;
+    - `extref.ts`, with `hasSubscription` and `isBoundTo`;
+    - `settings.ts`, enabled by default, storage errors tolerated.
+
+    None of it mentions SEL.
+  - **SEL rules.** In `src/foundation/`:
+    - `sampled-values.ts` maps by phase letter (L7) and bounds the run (L6, so no crash). It caps at 3 phases (Q4), compares `lnInst` with the previous phase and stops on `NaN` (L12). It has a strict `intAddr` pattern, because `VB001`, a GOOSE virtual bit, used to parse as phase B.
+    - `double-point.ts` requires the next element to be an `ExtRef` with an `intAddr` and the same `serviceType` (L8).
+    - `sel.ts` has `planSel`, `isSelIed` (exact `SEL`), the identity and the storage key.
+  - **Gaps closed.** L1–L12 and L15. L13 was kept by decision. L14 was fixed in later binding.
+  - **UI.**
+    - `oscd-dialog` with `oscd-switch` and `oscd-text-button`.
+    - The setting is stored as soon as the switch changes (U2).
+    - The theme follows the theming doc through `theme.ts` (U5), with the link to OpenPowerShift (U6).
+    - The double-position wording doesn't claim which input is open or closed: the fixture has `VB001` Open and `VB002` Closed.
+  - **Tests.**
+    - 82 specs in about 8 s, 99.3% coverage.
+    - The pure rules are tested on inline SCL.
+    - The core and the plugin are tested on `test/fixtures/SEL_SV_and_GOOSE.scd`, with `src/testing/later-binding.ts`, a protocol stand-in that uses `XMLEditor` as the shell does. These check one undo entry, byte-identical undo, redo, skip and the unsubscribe guard.
+    - **Deviation:** the specs use the stand-in rather than real later binding, which is not on npm yet. The stand-in is what keeps CI independent of it.
+    - Two screenshot tests exist; their baselines are CI-owned.
+  - **Demo.**
+    - `oscd-shell` with Open, Save, this plugin, Subscriber Later Binding and the Source Editor.
+    - Later binding comes from `?laterBinding=`, else from an `npm link`ed local build on localhost, else from its deployed URL. The deployed URL currently returns 404 until later binding is deployed to OpenPowerShift Pages.
+    - `demo/sample.scd` is the SEL fixture.
+  - **README.** AsciiDoc, rewritten, with `(C) 2026 OpenPowerShift`.
+  - **Removed.** Legacy tests, screenshots, `foundation/identities` and `utils`, rollup, wds and wtr configs, `localization/` (moved into `src/`), and the legacy `docs/media` screenshot.
+- **Later binding follow-up** (`0380c94`): the companion count badge uses the secondary colour, not error. Its own tooltip explains it, and clicking it opens the settings.
+
+### Lessons for Siemens and NR
+
+- Copy `src/companion/**`, `src/theme.ts`, `src/testing/{fixtures,scl,later-binding,visual-regression.d.ts}.ts`, the configs, the demo skeleton and the README skeleton.
+- Write the vendor rules as `Binding[]` producers and a `plan<Vendor>` function. The core applies skip-never-overwrite, so the rules must not.
+- Check every `intAddr` pattern against the real fixture for false matches, as with `VB001`.
+- Each needs a real fixture containing an IED of its manufacturer. NR's current fixture has none (N3).
 
 ---
 
