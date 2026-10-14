@@ -29,8 +29,6 @@ on:
 jobs:
   test:
     uses: ./.github/workflows/test.yml
-    with:
-      visual: true
 
   release-please:
     needs: test

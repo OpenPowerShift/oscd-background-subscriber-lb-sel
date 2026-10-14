@@ -2,10 +2,7 @@ import type { PlannedBindings, ResolvedChange } from '../companion/companion.js'
 import { doublePointBindings } from './double-point.js';
 import { sampledValueBindings } from './sampled-values.js';
 
-export const selIdentity = 'openpowershift.oscd-menu-subscriber-lb-sel';
-
-/** Where the setting which enables the plugin is kept. */
-export const selStorageKey = 'oscd-menu-subscriber-lb-sel';
+export const selIdentity = 'openpowershift.oscd-background-subscriber-lb-sel';
 
 /** Whether an IED is from SEL. */
 export function isSelIed(ied: Element): boolean {

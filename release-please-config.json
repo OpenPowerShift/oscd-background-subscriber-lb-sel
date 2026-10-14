@@ -3,7 +3,7 @@
   "packages": {
     ".": {
       "release-type": "node",
-      "package-name": "@openpowershift/oscd-menu-subscriber-lb-sel"
+      "package-name": "@openpowershift/oscd-background-subscriber-lb-sel"
     }
   }
 }

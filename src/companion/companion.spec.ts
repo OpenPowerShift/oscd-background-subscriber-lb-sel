@@ -29,7 +29,6 @@ import type {
 describe('companion', () => {
   let doc: XMLDocument;
   let applied: { edits: EditV2[]; title?: string }[];
-  let enabled: boolean;
 
   /**
    * A companion which binds phase B and C inputs to the second and third
@@ -38,6 +37,8 @@ describe('companion', () => {
   const config: CompanionConfig = {
     identity: 'test.companion',
     name: 'Test',
+    description: () => 'Tests',
+    features: () => ['Phases B and C'],
     isVendorIed: ied => ied.getAttribute('manufacturer') === 'SEL',
     plan: (change) => {
       const bindings = [
@@ -51,14 +52,12 @@ describe('companion', () => {
         ? { subscribe: bindings, unsubscribe: [] }
         : { subscribe: [], unsubscribe: bindings };
     },
-    title: action => `Test ${action}`,
-    isEnabled: () => enabled
+    title: action => `Test ${action}`
   };
 
   beforeEach(async () => {
     doc = await loadFixture(fixtureName);
     applied = [];
-    enabled = true;
   });
 
   /** Applies edits to the document as the Subscriber Later Binding plugin does. */
@@ -77,6 +76,7 @@ describe('companion', () => {
       fcda: phaseFcda(doc, 'I1'),
       controlBlock: phaseStream(doc),
       settings: { ignoreSupervision: false, checkOnlyPreferredBasicType: false },
+      enabledCompanions: ['other.companion', 'test.companion'],
       apply,
       ...overrides
     };
@@ -158,9 +158,8 @@ describe('companion', () => {
       expect(applied).to.deep.equal([]);
     });
 
-    it('does nothing when disabled', () => {
-      enabled = false;
-      respondToChange(change(), config);
+    it('does nothing when not turned on in Subscriber Later Binding', () => {
+      respondToChange(change({ enabledCompanions: ['other.companion'] }), config);
       expect(applied).to.deep.equal([]);
     });
 
@@ -242,14 +241,17 @@ describe('companion', () => {
       expect(controllers).to.deep.equal([controller]);
     });
 
-    it('announces itself when connected and when asked', () => {
+    it('announces itself and what it does when connected and when asked', () => {
       controller.hostConnected();
-      enabled = false;
       window.dispatchEvent(newCompanionRequestEvent());
-      expect(announced).to.deep.equal([
-        { version: 1, identity: 'test.companion', name: 'Test', enabled: true },
-        { version: 1, identity: 'test.companion', name: 'Test', enabled: false }
-      ]);
+      const detail = {
+        version: 1,
+        identity: 'test.companion',
+        name: 'Test',
+        description: 'Tests',
+        features: ['Phases B and C']
+      };
+      expect(announced).to.deep.equal([detail, detail]);
     });
 
     it('responds to changes while connected', () => {

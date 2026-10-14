@@ -1,6 +1,6 @@
 import { expect, fixture, html } from '@open-wc/testing';
 
-import OscdMenuSubscriberLbSel from './oscd-menu-subscriber-lb-sel.js';
+import OscdBackgroundSubscriberLbSel from './oscd-background-subscriber-lb-sel.js';
 import {
   companionAnnounceEventName,
   companionWithdrawEventName
@@ -9,7 +9,7 @@ import type {
   CompanionAnnounceEvent,
   CompanionWithdrawEvent
 } from './companion/protocol.js';
-import { selIdentity, selStorageKey } from './foundation/sel.js';
+import { selIdentity } from './foundation/sel.js';
 import { loadFixture } from './testing/fixtures.js';
 import { LaterBindingStandIn } from './testing/later-binding.js';
 import {
@@ -22,14 +22,14 @@ import {
   subscription
 } from './testing/sel.js';
 
-const tagName = 'oscd-menu-subscriber-lb-sel-spec';
+const tagName = 'oscd-background-subscriber-lb-sel-spec';
 if (customElements.get(tagName) === undefined) {
-  customElements.define(tagName, OscdMenuSubscriberLbSel);
+  customElements.define(tagName, OscdBackgroundSubscriberLbSel);
 }
 
 describe('Subscriber Later Binding - SEL', () => {
   let doc: XMLDocument;
-  let plugin: OscdMenuSubscriberLbSel;
+  let plugin: OscdBackgroundSubscriberLbSel;
   let laterBinding: LaterBindingStandIn;
 
   const serialize = (): string => new XMLSerializer().serializeToString(doc);
@@ -38,19 +38,22 @@ describe('Subscriber Later Binding - SEL', () => {
     subscription(selInput(doc, intAddr)).prefix;
 
   async function mount(): Promise<void> {
-    plugin = await fixture<OscdMenuSubscriberLbSel>(
-      html`<oscd-menu-subscriber-lb-sel-spec
+    plugin = await fixture<OscdBackgroundSubscriberLbSel>(
+      html`<oscd-background-subscriber-lb-sel-spec
         .doc=${doc}
         docName="sel.scd"
-      ></oscd-menu-subscriber-lb-sel-spec>`
+      ></oscd-background-subscriber-lb-sel-spec>`
     );
   }
 
   beforeEach(async () => {
-    localStorage.removeItem(selStorageKey);
     doc = await loadFixture(fixtureName);
     laterBinding = new LaterBindingStandIn();
     await mount();
+  });
+
+  afterEach(() => {
+    laterBinding.disconnect();
   });
 
   describe('sampled values', () => {
@@ -139,8 +142,8 @@ describe('Subscriber Later Binding - SEL', () => {
   });
 
   describe('when it does nothing', () => {
-    it('does nothing when disabled', () => {
-      plugin.enabled = false;
+    it('does nothing when turned off in Subscriber Later Binding', () => {
+      laterBinding.disabledCompanions = [selIdentity];
       laterBinding.subscribe(selInput(doc, 'IAS'), phaseFcda(doc, 'I1'), phaseStream(doc));
       expect(prefixOf('IBS')).to.equal(undefined);
       expect(laterBinding.appliedTitles).to.deep.equal([]);
@@ -165,61 +168,26 @@ describe('Subscriber Later Binding - SEL', () => {
     });
   });
 
-  describe('dialog', () => {
-    const switchOf = (): HTMLElement & { selected: boolean } =>
-      plugin.shadowRoot!.querySelector('oscd-switch')!;
-
-    const dialogOf = (): HTMLElement & { open: boolean } =>
-      plugin.shadowRoot!.querySelector('oscd-dialog')!;
-
-    it('reflects its identity', () => {
+  describe('as a background plugin', () => {
+    it('reflects its identity and shows nothing', () => {
       expect(plugin.getAttribute('identity')).to.equal(selIdentity);
+      expect(plugin.shadowRoot!.childElementCount).to.equal(0);
     });
 
-    it('is enabled by default', () => {
-      expect(plugin.enabled).to.equal(true);
-      expect(switchOf().selected).to.equal(true);
-    });
-
-    it('opens when run', async () => {
-      await plugin.run();
-      expect(dialogOf().open).to.equal(true);
-    });
-
-    it('closes with its button', async () => {
-      await plugin.run();
-      (plugin.shadowRoot!.querySelector('oscd-text-button') as HTMLElement).click();
-      await new Promise((resolve) => {
-        dialogOf().addEventListener('closed', resolve, { once: true });
+    it('tells Subscriber Later Binding what it does', () => {
+      expect(laterBinding.companions.get(selIdentity)).to.deep.equal({
+        version: 1,
+        identity: selIdentity,
+        name: 'SEL',
+        description: 'Subscribes and unsubscribes further inputs of SEL relays',
+        features: [
+          'Double position values (DPC, Dbpos): the next input of the pair',
+          'Sampled values: the other phases'
+        ]
       });
-      expect(dialogOf().open).to.equal(false);
     });
 
-    it('is turned off with its switch, which is kept and announced', async () => {
-      const announced: CompanionAnnounceEvent['detail'][] = [];
-      const listener = (event: CompanionAnnounceEvent): void => {
-        announced.push(event.detail);
-      };
-      window.addEventListener(companionAnnounceEventName, listener);
-      await plugin.run();
-      switchOf().click();
-      await plugin.updateComplete;
-      window.removeEventListener(companionAnnounceEventName, listener);
-
-      expect(plugin.enabled).to.equal(false);
-      expect(localStorage.getItem(selStorageKey)).to.equal('false');
-      expect(announced).to.deep.equal([
-        { version: 1, identity: selIdentity, name: 'SEL', enabled: false }
-      ]);
-    });
-
-    it('starts as it was left', async () => {
-      localStorage.setItem(selStorageKey, 'false');
-      await mount();
-      expect(plugin.enabled).to.equal(false);
-    });
-
-    it('announces itself to the Subscriber Later Binding plugin', async () => {
+    it('announces itself again when asked', () => {
       const announced: CompanionAnnounceEvent['detail'][] = [];
       const listener = (event: CompanionAnnounceEvent): void => {
         announced.push(event.detail);
@@ -227,9 +195,7 @@ describe('Subscriber Later Binding - SEL', () => {
       window.addEventListener(companionAnnounceEventName, listener);
       laterBinding.request();
       window.removeEventListener(companionAnnounceEventName, listener);
-      expect(announced).to.deep.equal([
-        { version: 1, identity: selIdentity, name: 'SEL', enabled: true }
-      ]);
+      expect(announced.map(detail => detail.identity)).to.deep.equal([selIdentity]);
     });
 
     it('withdraws when removed from the page', () => {
@@ -241,6 +207,7 @@ describe('Subscriber Later Binding - SEL', () => {
       plugin.remove();
       window.removeEventListener(companionWithdrawEventName, listener);
       expect(withdrawn).to.deep.equal([{ version: 1, identity: selIdentity }]);
+      expect(laterBinding.companions.has(selIdentity)).to.equal(false);
     });
   });
 });

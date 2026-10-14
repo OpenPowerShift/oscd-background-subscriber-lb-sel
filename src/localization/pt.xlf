@@ -2,22 +2,6 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file target-language="pt" source-language="en" original="lit-localize-inputs" datatype="plaintext">
     <body>
-      <trans-unit id="s55e247235f637dbd">
-        <source>This plugin works with the</source>
-        <target>Este plugin funciona com o</target>
-      </trans-unit>
-      <trans-unit id="s965c503c3e42fdfe">
-        <source>Enabled</source>
-        <target>Ativado</target>
-      </trans-unit>
-      <trans-unit id="s5e8250fb85d64c23">
-        <source>Close</source>
-        <target>Fechar</target>
-      </trans-unit>
-<trans-unit id="sc100d267291a3593">
-  <source>Subscriber Later Binding - SEL</source>
-  <target>Associação Tardia de Assinante - SEL</target>
-</trans-unit>
 <trans-unit id="s7ac093b7abb89137">
   <source>SEL subscribe</source>
   <target>SEL assinar</target>
@@ -26,25 +10,17 @@
   <source>SEL unsubscribe</source>
   <target>SEL cancelar assinatura</target>
 </trans-unit>
-<trans-unit id="s5f0eb1803f36740b">
-  <source>Subscriber Later Binding plugin</source>
-  <target>plugin Associação Tardia de Assinante</target>
-</trans-unit>
-<trans-unit id="s698912bc489989e8">
-  <source>to subscribe and unsubscribe further inputs of SEL relays:</source>
-  <target>para assinar e cancelar a assinatura de outras entradas de relés SEL:</target>
-</trans-unit>
 <trans-unit id="s99598eb382cef2fc">
   <source>Sampled values: the other phases</source>
   <target>Valores amostrados: as outras fases</target>
 </trans-unit>
-<trans-unit id="sa4a9a1e6e16437d0">
-  <source>"Allow External Plugins" must be on in its settings.</source>
-  <target>"Permitir plugins externos" deve estar ativado nas suas configurações.</target>
-</trans-unit>
 <trans-unit id="sc1e0efc1221338df">
   <source>Double position values (DPC, Dbpos): the next input of the pair</source>
   <target>Valores de posição dupla (DPC, Dbpos): a próxima entrada do par</target>
+</trans-unit>
+<trans-unit id="s3d264cd55b5f5885">
+  <source>Subscribes and unsubscribes further inputs of SEL relays</source>
+  <target>Assina e cancela a assinatura de outras entradas de relés SEL</target>
 </trans-unit>
     </body>
   </file>

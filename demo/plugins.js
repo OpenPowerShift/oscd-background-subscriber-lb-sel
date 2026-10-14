@@ -3,7 +3,7 @@ import OscdMenuSave from '@omicronenergy/oscd-menu-save';
 
 // built from src/ by `tsc --watch` when serving from source and by `npm run
 // bundle` before the demo is bundled
-import OscdMenuSubscriberLbSel from '../dist/oscd-menu-subscriber-lb-sel.js';
+import OscdBackgroundSubscriberLbSel from '../dist/oscd-background-subscriber-lb-sel.js';
 
 const deployedLaterBinding =
   'https://openpowershift.github.io/oscd-editor-subscriber-later-binding/oscd-editor-subscriber-later-binding.js';
@@ -39,7 +39,7 @@ const laterBindingSrc =
 export function definePlugins(registry) {
   registry.define('oscd-menu-open', OscdMenuOpen);
   registry.define('oscd-menu-save', OscdMenuSave);
-  registry.define('oscd-menu-subscriber-lb-sel', OscdMenuSubscriberLbSel);
+  registry.define('oscd-background-subscriber-lb-sel', OscdBackgroundSubscriberLbSel);
 }
 
 export const plugins = {
@@ -56,16 +56,6 @@ export const plugins = {
       icon: 'save',
       requireDoc: true,
       tagName: 'oscd-menu-save'
-    },
-    {
-      name: 'Subscriber Later Binding - SEL',
-      translations: {
-        de: 'Späte Bindung des Abonnenten - SEL',
-        pt: 'Associação Tardia de Assinante - SEL'
-      },
-      icon: 'autorenew',
-      requireDoc: true,
-      tagName: 'oscd-menu-subscriber-lb-sel'
     }
   ],
   editor: [
@@ -85,6 +75,18 @@ export const plugins = {
       icon: 'data_object',
       requireDoc: true,
       src: 'https://omicronenergyoss.github.io/oscd-editor-source/oscd-editor-source.js'
+    }
+  ],
+  background: [
+    {
+      name: 'Subscriber Later Binding - SEL',
+      translations: {
+        de: 'Späte Bindung des Abonnenten - SEL',
+        pt: 'Associação Tardia de Assinante - SEL'
+      },
+      icon: 'none',
+      requireDoc: true,
+      tagName: 'oscd-background-subscriber-lb-sel'
     }
   ]
 };

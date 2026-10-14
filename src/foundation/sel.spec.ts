@@ -30,6 +30,7 @@ describe('SEL', () => {
     fcda,
     controlBlock,
     settings: { ignoreSupervision: false, checkOnlyPreferredBasicType: false },
+    enabledCompanions: [],
     apply: () => undefined
   });
 

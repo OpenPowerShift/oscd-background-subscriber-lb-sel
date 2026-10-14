@@ -1,5 +1,5 @@
 {
-  "name": "@openpowershift/oscd-menu-subscriber-lb-sel",
+  "name": "@openpowershift/oscd-background-subscriber-lb-sel",
   "description": "Companion plugin for the OpenSCD Subscriber Later Binding plugin which maps further inputs of SEL devices",
   "license": "Apache-2.0",
   "author": "OpenPowerShift",
@@ -10,10 +10,10 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OpenPowerShift/oscd-menu-subscriber-lb-sel.git"
+    "url": "git+https://github.com/OpenPowerShift/oscd-background-subscriber-lb-sel.git"
   },
   "bugs": {
-    "url": "https://github.com/OpenPowerShift/oscd-menu-subscriber-lb-sel/issues"
+    "url": "https://github.com/OpenPowerShift/oscd-background-subscriber-lb-sel/issues"
   },
   "keywords": [
     "OpenSCD",
@@ -24,10 +24,10 @@
     "later binding",
     "SEL"
   ],
-  "main": "dist/oscd-menu-subscriber-lb-sel.js",
-  "module": "dist/oscd-menu-subscriber-lb-sel.js",
+  "main": "dist/oscd-background-subscriber-lb-sel.js",
+  "module": "dist/oscd-background-subscriber-lb-sel.js",
   "exports": {
-    ".": "./dist/oscd-menu-subscriber-lb-sel.js"
+    ".": "./dist/oscd-background-subscriber-lb-sel.js"
   },
   "files": [
     "dist",
@@ -48,12 +48,10 @@
     "bundle": "npm run extract && npm run localize && oscd bundle",
     "test": "oscd test",
     "test:watch": "oscd test --watch",
-    "test:visual": "oscd test --visual",
     "updates": "oscd updates",
     "deploy": "oscd deploy",
     "prepare": "oscd install-hooks",
-    "pretest": "oscd clean && npm run extract && npm run localize",
-    "pretest:visual": "oscd clean && npm run extract && npm run localize"
+    "pretest": "oscd clean && npm run extract && npm run localize"
   },
   "dependencies": {
     "@lit/localize": "^0.12.2",

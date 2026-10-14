@@ -43,13 +43,16 @@ export interface CompanionConfig {
   identity: string;
   /** A short name shown to the user, e.g. "SEL". */
   name: string;
+  /** What the companion does, shown in the settings of Subscriber Later Binding. */
+  description: () => string;
+  /** The things it subscribes, shown with the description. */
+  features: () => string[];
   /** Whether an IED is one the companion is for. */
   isVendorIed: (ied: Element) => boolean;
   /** The manufacturer's rules: what else to subscribe or unsubscribe. */
   plan: (change: ResolvedChange) => PlannedBindings;
   /** A title for the undoable edit. */
   title: (action: ChangeAction) => string;
-  isEnabled: () => boolean;
 }
 
 function isResolved(change: SubscriptionChangeDetail): change is ResolvedChange {
@@ -83,7 +86,7 @@ export function respondToChange(
 ): void {
   if (
     change.version !== companionProtocolVersion ||
-    !config.isEnabled() ||
+    !change.enabledCompanions.includes(config.identity) ||
     !isResolved(change)
   ) {
     return;
@@ -129,7 +132,9 @@ export function respondToChange(
 
 /**
  * Connects a companion plugin to the Subscriber Later Binding plugin while the
- * host element is connected: it responds to changes and announces itself.
+ * host element is connected: it responds to changes and announces itself, with
+ * what it does, so that it can be turned on and off in the settings of
+ * Subscriber Later Binding.
  */
 export class CompanionController implements ReactiveController {
   private readonly config: CompanionConfig;
@@ -155,9 +160,14 @@ export class CompanionController implements ReactiveController {
 
   /** Tells the Subscriber Later Binding plugin about the companion. */
   announce(): void {
-    const { identity, name, isEnabled } = this.config;
+    const { identity, name, description, features } = this.config;
     window.dispatchEvent(
-      newCompanionAnnounceEvent({ identity, name, enabled: isEnabled() })
+      newCompanionAnnounceEvent({
+        identity,
+        name,
+        description: description(),
+        features: features()
+      })
     );
   }
 
