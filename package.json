@@ -37,23 +37,23 @@
     "!dist/demo"
   ],
   "scripts": {
-    "clean": "node -e \"require(\\\"fs\\\").rmSync(\\\"dist\\\",{recursive:true,force:true})\"",
+    "clean": "oscd clean",
     "extract": "lit-localize extract",
     "localize": "lit-localize build",
     "lint": "oscd lint",
     "format": "oscd lint --format",
     "start": "npm run extract && npm run localize && oscd start",
     "start:bundle": "oscd start-bundle",
-    "build": "npm run clean && npm run extract && npm run localize && oscd build --no-clean",
-    "bundle": "npm run clean && npm run extract && npm run localize && oscd bundle --no-clean",
+    "build": "npm run extract && npm run localize && oscd build",
+    "bundle": "npm run extract && npm run localize && oscd bundle",
     "test": "oscd test",
     "test:watch": "oscd test --watch",
     "test:visual": "oscd test --visual",
     "updates": "oscd updates",
     "deploy": "oscd deploy",
     "prepare": "oscd install-hooks",
-    "pretest": "npm run clean && npm run extract && npm run localize",
-    "pretest:visual": "npm run clean && npm run extract && npm run localize"
+    "pretest": "oscd clean && npm run extract && npm run localize",
+    "pretest:visual": "oscd clean && npm run extract && npm run localize"
   },
   "dependencies": {
     "@lit/localize": "^0.12.2",

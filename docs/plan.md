@@ -476,7 +476,9 @@ each step completes: what changed, verification commands and results, deviations
   - **Deviation: steps 2–7 were done in one pass.** The pre-commit hook lints staged `.ts`, and the legacy source could not pass it. They are committed as a scaffold commit and a rewrite commit.
   - **Scaffold.**
     - Configs come from later binding and the OMICRON template: `tsconfig`, `eslint.config.js`, a local `web-test-runner.config.js` with coverage thresholds 95/90/95/95, workflows, release-please, `.gitattributes` for LFS screenshots, and `.githooks` from `oscd install-hooks`.
-    - `@omicronenergy/oscd-tooling` is pinned at 0.0.8. `oscd clean` still exits the process early, so `clean` is a local script and `build`, `bundle` and `pretest` call `oscd … --no-clean`.
+    - `@omicronenergy/oscd-tooling` is pinned at 0.0.8.
+    - `oscd clean` works in 0.0.8. In 0.0.6, as used by later binding, it passed a quoted glob to rimraf without a shell, so it removed nothing outside Windows. 0.0.7 fixed that.
+    - `oscd test` never cleans `dist/`, so stale compiled specs still run (reported to oscd-tooling). `pretest` therefore runs `oscd clean`. `build` and `bundle` use the tooling's own cleaning.
   - **Translations.** These follow the OMICRON pattern (user decision): `lit-localize.json` in runtime mode, `src/localization/{de,pt}.xlf`, generated `src/locales/` gitignored, and `extract` + `localize` before start, build and test. All strings are translated.
   - **Core.** `src/companion/` holds:
     - `protocol.ts`, a verbatim copy of later binding's with a header;
