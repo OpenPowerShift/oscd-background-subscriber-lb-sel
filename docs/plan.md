@@ -37,7 +37,7 @@ Update this table as each step completes, and add a completion summary to
 | 7 | Tests: unit, integration with the real later-binding plugin, and visual | mostly [shared] harness | ⬜ |
 | 8 | Demo page (oscd-shell) and README | [shared] | ⬜ |
 | 9 | Clean-up: remove legacy files, final verify, CHANGELOG/release-please | [shared] | ⬜ |
-| LB | Later-binding changes: companion protocol + `apply`, auto-increment stops at a subscribed input, companion badge (§2.2, §2.4, Step LB) | other repo | ⬜ |
+| LB | Later-binding changes: companion protocol + `apply`, auto-increment stops at a subscribed input, companion badge (§2.2, §2.4, Step LB) | other repo | ✅ |
 
 ---
 
@@ -462,6 +462,15 @@ each step completes: what changed, verification commands and results, deviations
   - scl-lib v2 subscribe/unsubscribe
   - the OMICRON databinding template
   - theming.md @153e3d5
+
+- **Step LB** (2026-10-14): `../oscd-editor-subscriber-later-binding`, branch `plugin-migration`, commits `b74fd68` (feat) and `04c73ca` (docs). Not pushed.
+  - Added `src/foundation/companion-protocol.ts` (protocol v1). **Copy this file verbatim** into each companion as `src/companion/protocol.ts`.
+  - `subscriptionSource()` resolves the FCDA and control block before an unsubscribe. It falls back to the data set when the ExtRef has no `srcCBName`.
+  - Auto-increment never unsubscribes. It stops if the next ExtRef became subscribed.
+  - Badge: the supporting text says "N active: …", and an `oscd-badge` on the settings button shows the count.
+  - Docs: the development page has a "Companion plugins" section, and the introduction lists the companions.
+  - Verified with `npm run lint` (0 errors) and `npm test` (791 passed, 98.99% coverage).
+  - Follow-up: the settings-menu visual baselines change, so the PR needs the `update-visual-baselines` label.
 
 ---
 
