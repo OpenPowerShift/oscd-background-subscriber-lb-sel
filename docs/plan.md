@@ -1,6 +1,6 @@
-# Upgrade plan: oscd-menu-subscriber-lb-sel
+# Upgrade plan: oscd-background-subscriber-lb-sel
 
-Status: **SEL upgrade complete**; Siemens and NR next (§8) · Branch: `upgrade` · Last updated: 2026-10-14
+Status: **SEL, Siemens and NR upgrades complete** (branch `upgrade` in each) · Branch: `upgrade` · Last updated: 2026-10-14
 
 This plan upgrades the SEL companion plugin for the Subscriber Later Binding
 plugin to the current OpenSCD stack:
@@ -12,7 +12,7 @@ plugin to the current OpenSCD stack:
 - `@omicronenergy/oscd-tooling`
 - the oscd-api theming contract
 
-The package will be published as **`@openpowershift/oscd-menu-subscriber-lb-sel`**.
+The package will be published as **`@openpowershift/oscd-background-subscriber-lb-sel`** (renamed from `oscd-menu-subscriber-lb-sel` once it became a background plugin; earlier entries below use the old name).
 
 The same procedure will be repeated for the **Siemens** (`oscd-menu-subscriber-lb-siemens`)
 and **NR** (`oscd-menu-subscriber-lb-nr`) plugins. Everything that is not
@@ -510,6 +510,27 @@ each step completes: what changed, verification commands and results, deviations
   - **README.** AsciiDoc, rewritten, with `(C) 2026 OpenPowerShift`.
   - **Removed.** Legacy tests, screenshots, `foundation/identities` and `utils`, rollup, wds and wtr configs, `localization/` (moved into `src/`), and the legacy `docs/media` screenshot.
 - **Later binding follow-up** (`0380c94`): the companion count badge uses the secondary colour, not error. Its own tooltip explains it, and clicking it opens the settings.
+
+- **Siemens and NR** (2026-10-14): upgraded on `upgrade` branches following §8.3. Each has its own `docs/plan.md` with its rules, gaps and worklog.
+  - `src/companion/**`, `src/theme.ts` and the shared test helpers are byte-identical in all three repos. `protocol.ts` matches later binding's apart from its header.
+  - **Siemens:** 4 phases including the neutral. Index pairing stops at the first mismatch (new S6). A phase whose value or quality input is already bound is left whole (new S7). S1–S5 closed. 73 specs, 99.4% coverage.
+  - **NR:** last-part matching at the last `.` or `/` (N1), on the SEL fixture's NRR merging unit (N3). 52 specs, 99.4% coverage.
+  - `Ind64` inputs: their preferred type cannot be determined, so later binding refuses them. Left as is by decision. Later binding's tooltip now explains it.
+
+- **Background plugin** (2026-10-14, user decision). SEL is now a background plugin with no UI. Later binding lists each companion in its settings and turns it on or off.
+  - Protocol (still `version: 1`, additive):
+    - announce gains `description` and `features[]`, and `enabled` becomes optional (only for companions with their own switch);
+    - the change event gains `enabledCompanions`.
+  - Later binding keeps `disabledCompanions` in its settings. Companions are on by default, and the choice is kept for companions not currently loaded.
+  - The SEL core now responds only when its identity is in `enabledCompanions`.
+  - Removed: `companion/settings.ts` and the dialog, so `theme.ts` is unused, and the screenshot tests with their CI jobs, since there is nothing to show.
+  - The stand-in in `src/testing/later-binding.ts` now follows announcements as later binding does.
+  - SEL: 74 specs, 99.25% coverage. Later binding: 810 specs.
+  - Siemens and NR still use the previous core with their own switch until converted. The later-binding toggle does not affect them.
+
+- **Renamed** (2026-10-14, user decision): `oscd-menu-…` → `oscd-background-subscriber-lb-{sel,siemens,nr}`.
+  - This covers the package, the entry file, the class, the tag, the identity (`openpowershift.oscd-background-subscriber-lb-sel`) and the URLs.
+  - The repositories are renamed on GitHub by the user, and the local remotes now point at the new names.
 
 ### Lessons for Siemens and NR
 

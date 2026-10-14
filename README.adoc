@@ -5,18 +5,19 @@
 :toc:
 :icons: font
 :experimental:
-:uri-plugin: https://github.com/OpenPowerShift/oscd-menu-subscriber-lb-sel
+:uri-plugin: https://github.com/OpenPowerShift/oscd-background-subscriber-lb-sel
 :uri-later-binding: https://github.com/OpenPowerShift/oscd-editor-subscriber-later-binding
 :uri-later-binding-companions: https://github.com/OpenPowerShift/oscd-editor-subscriber-later-binding/blob/main/modules/ROOT/pages/development.adoc#companionPlugins
 :uri-shell: https://github.com/OMICRONEnergyOSS/oscd-shell
 :uri-tooling: https://github.com/OMICRONEnergyOSS/oscd-tooling
-:uri-ci-bundle: https://openpowershift.github.io/oscd-menu-subscriber-lb-sel/oscd-menu-subscriber-lb-sel.js
-:uri-demo: https://openpowershift.github.io/oscd-menu-subscriber-lb-sel/demo/
+:uri-ci-bundle: https://openpowershift.github.io/oscd-background-subscriber-lb-sel/oscd-background-subscriber-lb-sel.js
+:uri-demo: https://openpowershift.github.io/oscd-background-subscriber-lb-sel/demo/
 
 == What is this?
 
 A companion plugin for the {uri-later-binding}[Subscriber Later Binding] plugin of OpenSCD.
-When you subscribe or unsubscribe an input of an SEL relay there, it subscribes or unsubscribes the inputs that belong with it:
+It is a background plugin with no user interface of its own.
+When you subscribe or unsubscribe an input of an SEL relay in Subscriber Later Binding, it subscribes or unsubscribes the inputs that belong with it:
 
 * *Double position values* (CDC `DPC`, basic type `Dbpos`): SEL relays take a double position as a pair of adjacent inputs, one for the open and one for the closed indication.
 The next input is subscribed to the same data.
@@ -59,16 +60,20 @@ The next input must be a later binding input (with an `intAddr`) of the same ser
 
 == Using the plugin
 
-. Load the plugin as a menu plugin, together with the Subscriber Later Binding editor plugin.
-. The plugin is enabled by default.
-To turn it off, choose its menu item and use the switch.
-. In Subscriber Later Binding, _Allow External Plugins_ must be on (the default).
-Its settings menu shows the active companion plugins, and the settings button shows how many there are.
+. Load the plugin as a background plugin, together with the Subscriber Later Binding editor plugin.
+. Open the settings of Subscriber Later Binding (the cog in either view).
+.. _SEL companion plugin_ is listed with what it does.
+It is on unless you turn it off; Subscriber Later Binding remembers the choice.
+.. _Allow External Plugins_ must also be on (the default).
+It lists the active companion plugins, and the settings button shows how many there are.
+. Subscribe and unsubscribe as usual.
+The plugin adds its subscriptions to the same action, so one undo reverses everything.
 
 == Loading the plugin
 
 The plugin works with {uri-shell}[`oscd-shell`] and other hosts that implement the OpenSCD plugin API.
-It is a menu plugin whose module's default export is the plugin class.
+It is a background plugin whose module's default export is the plugin class.
+It needs a document, so it is listed with `requireDoc: true`.
 
 The latest build from `main` is at {uri-ci-bundle}.
 In an `oscd-shell` `plugins` object:
@@ -76,14 +81,14 @@ In an `oscd-shell` `plugins` object:
 [source,js,subs=+attributes]
 ----
 {
-  menu: [
+  background: [
     {
       name: '{plugin-name}',
       translations: {
         de: 'Späte Bindung des Abonnenten - SEL',
         pt: 'Associação Tardia de Assinante - SEL'
       },
-      icon: 'autorenew',
+      icon: 'none',
       requireDoc: true,
       src: '{uri-ci-bundle}'
     }
@@ -91,7 +96,7 @@ In an `oscd-shell` `plugins` object:
 }
 ----
 
-The package is also published to npm as `@openpowershift/oscd-menu-subscriber-lb-sel`.
+The package is also published to npm as `@openpowershift/oscd-background-subscriber-lb-sel`.
 
 == Development
 
@@ -123,8 +128,15 @@ Run `npm run bundle` in the later binding checkout again after changing it.
 === Companion plugins
 
 How companion plugins work with Subscriber Later Binding is described in its {uri-later-binding-companions}[development documentation].
-In short, Subscriber Later Binding tells companions on `window` what it did, and applies the edits they make as part of the same undoable action.
-Companions never handle the host's edit events.
+In short:
+
+. When connected, and whenever Subscriber Later Binding asks, the plugin announces itself on `window` with its identity, name, description and features.
+Subscriber Later Binding lists it in its settings from this, and keeps whether the user turned it off.
+. After each subscription or unsubscription, Subscriber Later Binding tells companions on `window` what it did, with the identities of the companions that are turned on.
+. If this plugin is among them and the input belongs to an SEL relay, it works out its edits and hands them back through `apply`.
+Subscriber Later Binding applies them as part of the same undoable action.
+
+Companions never handle the host's edit events, and have no settings of their own.
 
 `src/companion/` is the part shared with the Siemens and NR Electric companion plugins.
 `src/companion/protocol.ts` is a copy of the protocol in Subscriber Later Binding and must be kept identical to it.
@@ -138,9 +150,7 @@ The specs (`*.spec.ts`) run in Chromium with Web Test Runner, with coverage thre
 `src/testing/later-binding.ts` stands in for Subscriber Later Binding.
 It uses the same events and the same undo history as the host, so the specs check that a whole action undoes and redoes as one edit.
 
-Screenshot tests (`*.test.ts`) run with `npm run test:visual`.
-Their baselines are owned by CI.
-Add the `update-visual-baselines` label to a pull request to create or update them.
+The plugin has no user interface, so there are no screenshot tests.
 
 === Translations
 
