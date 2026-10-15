@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file target-language="de" source-language="en" original="lit-localize-inputs" datatype="plaintext">
+    <body>
+<trans-unit id="s7ac093b7abb89137">
+  <source>SEL subscribe</source>
+  <target>SEL abonnieren</target>
+</trans-unit>
+<trans-unit id="s45f89999f84b533a">
+  <source>SEL unsubscribe</source>
+  <target>SEL abbestellen</target>
+</trans-unit>
+<trans-unit id="s99598eb382cef2fc">
+  <source>Sampled values: the other phases</source>
+  <target>Abgetastete Werte: die anderen Phasen</target>
+</trans-unit>
+<trans-unit id="sc1e0efc1221338df">
+  <source>Double position values (DPC, Dbpos): the next input of the pair</source>
+  <target>Doppelpositionswerte (DPC, Dbpos): der nächste Eingang des Paares</target>
+</trans-unit>
+<trans-unit id="s3d264cd55b5f5885">
+  <source>Subscribes and unsubscribes further inputs of SEL relays</source>
+  <target>Abonniert und bestellt weitere Eingänge von SEL-Relais ab</target>
+</trans-unit>
+    </body>
+  </file>
+</xliff>
