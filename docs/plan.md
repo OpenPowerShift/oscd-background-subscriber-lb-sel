@@ -33,8 +33,8 @@ Update this table as each step completes, and add a completion summary to
 | 3 | Companion core: protocol listener, gating, skip-never-overwrite, `apply` | [shared] | ✅ |
 | 4 | SEL rules ported to pure `foundation/` functions plus EditV2 | SEL | ✅ |
 | 5 | Logic gap fixes (§5) | SEL (+ shared items) | ✅ |
-| 6 | UI: oscd-ui dialog, theming, localisation | [shared] | ✅ |
-| 7 | Tests: unit, integration with a protocol stand-in, and visual | mostly [shared] harness | ✅ (baselines: CI) |
+| 6 | UI: oscd-ui dialog, theming, localisation | [shared] | ✅, then removed: as a background plugin it has no view, and it shows only in the later-binding settings |
+| 7 | Tests: unit, integration with a protocol stand-in, and visual | mostly [shared] harness | ✅ (screenshot tests removed with the dialog; the later-binding plugin's screenshots show the companions) |
 | 8 | Demo page (oscd-shell) and README | [shared] | ✅ |
 | 9 | Clean-up: remove legacy files, final verify, CHANGELOG/release-please | [shared] | ✅ |
 | LB | Later-binding changes: companion protocol + `apply`, auto-increment stops at a subscribed input, companion badge (§2.2, §2.4, Step LB) | other repo | ✅ |
